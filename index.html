@@ -103,6 +103,13 @@
     <p>Carregant records...</p>
   </div>
 
+    <!-- Modal de pantalla completa -->
+   <div id="imageModal">
+    <span id="closeModal">&times;</span>
+    <img id="modalContent" src="" alt="Vista ampliada" style="display:none;" />
+    <video id="modalVideoContent" src="" controls style="display:none; max-width: 90%; max-height: 80vh; border-radius: 8px;"></video>
+   </div>
+
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec'; // Recorda posar el teu link aquí
 
@@ -278,11 +285,6 @@
 
     carregarGaleria();
   </script>
-  <!-- Modal de pantalla completa -->
-   <div id="imageModal">
-    <span id="closeModal">&times;</span>
-    <img id="modalContent" src="" alt="Vista ampliada" style="display:none;" />
-    <video id="modalVideoContent" src="" controls style="display:none; max-width: 90%; max-height: 80vh; border-radius: 8px;"></video>
-   </div>
+
 </body>
 </html>
