@@ -8,8 +8,8 @@
   <meta name="theme-color" content="#d63384">
   <style>
     body { font-family: sans-serif; max-width: 500px; margin: 0 auto; text-align: center; padding: 1rem; background: #fafafa; }
-    h1 { color: #d63384; margin-top: 1.5rem; }
-    .main-btn { font-size: 1.2rem; padding: 0.8rem 1.2rem; background: #d63384; color: white; border: none; border-radius: 8px; cursor: pointer; display: inline-block; margin: 0.5rem 0; }
+    h1 { color: #4faf79; margin-top: 1.5rem; }
+    .main-btn { font-size: 1.2rem; padding: 0.8rem 1.2rem; background: #4faf79; color: white; border: none; border-radius: 8px; cursor: pointer; display: inline-block; margin: 0.5rem 0; }
     #status { margin-top: 1rem; font-weight: bold; color: green; }
     .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 2rem; }
     .gallery img, .gallery video { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -25,7 +25,7 @@
     #iosInstructions {
       display: none;
       background: #fff;
-      border: 2px dashed #d63384;
+      border: 2px dashed #4faf79;
       border-radius: 10px;
       padding: 15px;
       margin: 15px 0;
@@ -33,24 +33,31 @@
       font-size: 0.95rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    #iosInstructions h3 { color: #d63384; margin-top: 0; text-align: center; }
+    #iosInstructions h3 { color: #4faf79; margin-top: 0; text-align: center; }
     #iosInstructions ol { padding-left: 20px; margin-bottom: 0; }
     #iosInstructions li { margin-bottom: 8px; }
   </style>
 </head>
 <body>
 
-  <h1>💍 CASAMENT Compartit 📸</h1>
+  <h1>💍 CASAMENT J&G 📸</h1>
 
   <!-- Botó intel·ligent d'instal·lació (s'activa segons el mòbil) -->
-  <button id="smartInstallBtn" class="main-btn">📲 Instal·lar App a la pantalla d'inici</button>
+  <button id="smartInstallBtn" class="main-btn">Instal·la l'APP al mòbil</button>
 
   <!-- Instruccions específiques per a iPhone (amagades per defecte) -->
   <div id="iosInstructions">
     <h3>Com instal·lar l'App al teu iPhone</h3>
     <ol>
       <div>Assegura't d'obrir aquest enllaç des del navegador <b>Safari</b>.</div>
-      <li>Clica el botó de <b>Compartir</b> <span style="font-size: 1.2rem;">⎋</span> (situat a la barra inferior de Safari).</li>
+      <li>Clica el botó de <b>Compartir</b> 
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle; display: inline-block;">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+          <polyline points="16 6 12 2 8 6"></polyline>
+          <line x1="12" y1="2" x2="12" y2="15"></line>
+        </svg> 
+        (situat a la barra inferior de Safari).
+      </li>
       <li>Desplaça't pel menú i busca l'opció <b>"Afegir a la pantalla d'inici"</b> <span style="font-size: 1.2rem;">➕</span>.</li>
       <li>Clica a <b>Afegir</b> a la dreta de tot. ¡Llest! Ja la tens a la pantalla.</li>
     </ol>
@@ -60,7 +67,7 @@
   <button id="startBtn" class="main-btn">Fes una foto o vídeo</button>
   <p id="status"></p>
 
-  <h2>Galeria en directe</h2>
+  <h2>Galeria en Directe</h2>
   <div class="gallery" id="galleryContainer">
     <p>Carregant records...</p>
   </div>
