@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CASAMENT - Fotos i Vídeos Compartits</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d63384">
+  <style>
+    body { font-family: sans-serif; max-width: 500px; margin: 0 auto; text-align: center; padding: 1rem; background: #fafafa; }
+    h1 { color: #d63384; margin-top: 1.5rem; }
+    .main-btn { font-size: 1.2rem; padding: 0.8rem 1.2rem; background: #d63384; color: white; border: none; border-radius: 8px; cursor: pointer; display: inline-block; margin: 0.5rem 0; }
+    #status { margin-top: 1rem; font-weight: bold; color: green; }
+    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 2rem; }
+    .gallery img, .gallery video { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    
+    /* Botó d'instal·lació superior (inicialment ocult fins que toca) */
+    #smartInstallBtn {
+      display: none;
+      background: #28a745;
+      margin-bottom: 15px;
+    }
+
+    /* Caixa d'instruccions per a iPhone */
+    #iosInstructions {
+      display: none;
+      background: #fff;
+      border: 2px dashed #d63384;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 15px 0;
+      text-align: left;
+      font-size: 0.95rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    #iosInstructions h3 { color: #d63384; margin-top: 0; text-align: center; }
+    #iosInstructions ol { padding-left: 20px; margin-bottom: 0; }
+    #iosInstructions li { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+
+  <h1>💍 CASAMENT Compartit 📸</h1>
+
+  <!-- Botó intel·ligent d'instal·lació (s'activa segons el mòbil) -->
+  <button id="smartInstallBtn" class="main-btn">📲 Instal·lar App a la pantalla d'inici</button>
+
+  <!-- Instruccions específiques per a iPhone (amagades per defecte) -->
+  <div id="iosInstructions">
+    <h3>Com instal·lar l'App al teu iPhone</h3>
+    <ol>
+      <div>Assegura't d'obrir aquest enllaç des del navegador <b>Safari</b>.</div>
+      <li>Clica el botó de <b>Compartir</b> <span style="font-size: 1.2rem;">⎋</span> (situat a la barra inferior de Safari).</li>
+      <li>Desplaça't pel menú i busca l'opció <b>"Afegir a la pantalla d'inici"</b> <span style="font-size: 1.2rem;">➕</span>.</li>
+      <li>Clica a <b>Afegir</b> a la dreta de tot. ¡Llest! Ja la tens a la pantalla.</li>
+    </ol>
+  </div>
+  
+  <input type="file" accept="image/*,video/*" capture="environment" id="cameraInput" style="display:none;" />
+  <button id="startBtn" class="main-btn">Fes una foto o vídeo</button>
+  <p id="status"></p>
+
+  <h2>Galeria en directe</h2>
+  <div class="gallery" id="galleryContainer">
+    <p>Carregant records...</p>
+  </div>
+
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec'; // Recorda posar el teu link aquí
+
+    const cameraInput = document.getElementById('cameraInput');
+    const startBtn = document.getElementById('startBtn');
+    const status = document.getElementById('status');
+    const galleryContainer = document.getElementById('galleryContainer');
+    
+    const smartInstallBtn = document.getElementById('smartInstallBtn');
+    const iosInstructions = document.getElementById('iosInstructions');
+
+    let deferredPrompt = null;
+    const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
+
+    // 1. Si és Android i el navegador deixa instal·lar
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      smartInstallBtn.style.display = 'inline-block'; // Mostra el botó d'instal·lació
+    });
+
+    // 2. Si és iPhone i no està instal·lada encara com a app
+    if (isIos && !isInStandaloneMode) {
+      smartInstallBtn.style.display = 'inline-block'; // Mostra el botó per desplegar instruccions
+    }
+
+    // Acció del botó intel·ligent
+    smartInstallBtn.addEventListener('click', async () => {
+      if (isIos) {
+        // Si és iPhone, alterna la visibilitat de les instruccions
+        if (iosInstructions.style.display === 'block') {
+          iosInstructions.style.display = 'none';
+        } else {
+          iosInstructions.style.display = 'block';
+        }
+      } else if (deferredPrompt) {
+        // Si és Android, llança la instal·lació automàtica
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          smartInstallBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+      }
+    });
+
+    // Registre Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+
+    startBtn.addEventListener('click', () => {
+      status.textContent = '';
+      cameraInput.click();
+    });
+
+    cameraInput.addEventListener('change', () => {
+      const file = cameraInput.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const base64 = evt.target.result.split(',')[1];
+        status.textContent = 'Pujant al Drive...';
+
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: new URLSearchParams({
+            data: base64,
+            type: file.type,
+            name: file.name
+          })
+        })
+        .then(res => res.text())
+        .then(text => {
+          status.textContent = text === 'Pujada OK' ? 'Pujat correctament! 🎉' : text;
+          cameraInput.value = '';
+          carregarGaleria();
+        })
+        .catch(err => {
+          status.textContent = 'Error: ' + err.message;
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function carregarGaleria() {
+      fetch(SCRIPT_URL + '?action=getFiles')
+        .then(res => res.json())
+        .then(files => {
+          galleryContainer.innerHTML = '';
+          if (files.length === 0) {
+            galleryContainer.innerHTML = '<p>Encara no hi ha fotos. Siguis el primer!</p>';
+            return;
+          }
+          files.forEach(file => {
+            if (file.type.startsWith('image/')) {
+              const img = document.createElement('img');
+              img.src = file.url;
+              galleryContainer.appendChild(img);
+            } else if (file.type.startsWith('video/')) {
+              const video = document.createElement('video');
+              video.src = file.url;
+              video.controls = true;
+              galleryContainer.appendChild(video);
+            }
+          });
+        });
+    }
+
+    carregarGaleria();
+  </script>
+</body>
+</html>
