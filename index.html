@@ -133,10 +133,23 @@
       const file = cameraInput.files[0];
       if (!file) return;
       
+      status.textContent = 'Llegint imatge original...';
+
+      // Utilitzem FileReader amb readAsArrayBuffer o directament pugem el fitxer sencer
       const reader = new FileReader();
       reader.onload = function(evt) {
-        const base64 = evt.target.result.split(',')[1];
-        status.textContent = 'Pujant al Drive...';
+        // Obtenim els bytes reals sense comprimir
+        const bytes = new Uint8Array(evt.target.result);
+        
+        // Ho passem a base64 de manera neta
+        let binary = '';
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        const base64 = btoa(binary);
+
+        status.textContent = 'Pujant en alta qualitat...';
 
         fetch(SCRIPT_URL, {
           method: 'POST',
@@ -148,7 +161,7 @@
         })
         .then(res => res.text())
         .then(text => {
-          status.textContent = text === 'Pujada OK' ? 'Pujat correctament! 🎉' : text;
+          status.textContent = text === 'Pujada OK' ? 'Pujat en qualitat real! 🎉' : text;
           cameraInput.value = '';
           carregarGaleria();
         })
@@ -156,7 +169,9 @@
           status.textContent = 'Error: ' + err.message;
         });
       };
-      reader.readAsDataURL(file);
+      
+      // Llegim el fitxer com a ArrayBuffer per mantenir la qualitat intacta
+      reader.readAsArrayBuffer(file);
     });
 
     function carregarGaleria() {
