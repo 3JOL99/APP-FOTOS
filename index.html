@@ -1,83 +1,80 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CASAMENT - Fotos i Vídeos Compartits</title>
+  <title>CASAMENT J&G</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4faf79">
   <style>
-    body { font-family: sans-serif; max-width: 500px; margin: 0 auto; text-align: center; padding: 1rem; background: #ffffff; }
-    h1 { color: #4faf79; margin-top: 1.5rem; }
-    .main-btn { font-size: 1.2rem; padding: 0.8rem 1.2rem; background: #4faf79; color: white; border: none; border-radius: 8px; cursor: pointer; display: inline-block; margin: 0.5rem 0; }
-    #status { margin-top: 1rem; font-weight: bold; color: green; }
-    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 2rem; }
-    .gallery img, .gallery video { width: 100%; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    
-    /* Botó d'instal·lació superior (inicialment ocult fins que toca) */
-    #smartInstallBtn {
-      display: none;
-      background: #4faf79;
-      margin-bottom: 15px;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
     }
-
-    /* Caixa d'instruccions per a iPhone */
-    #iosInstructions {
-      display: none;
-      background: #fff;
-      border: 2px dashed #4faf79;
-      border-radius: 10px;
-      padding: 15px;
+    h1 {
+      font-size: 1.8rem;
+      color: #2c3e50;
+    }
+    .main-btn {
+      background-color: #007AFF;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      font-size: 1.1rem;
+      border-radius: 30px;
+      cursor: pointer;
       margin: 15px 0;
+      box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+    }
+    #iosInstructions {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 12px;
       text-align: left;
-      font-size: 0.95rem;
+      max-width: 400px;
+      margin: 15px auto;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-
-    /* Estils per a la pantalla completa (Modal) */
-    #imageModal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
+    #iosInstructions ol {
+      margin: 10px 0 0 20px;
+      padding: 0;
+    }
+    #iosInstructions li {
+      margin-bottom: 8px;
+    }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+      padding-bottom: 40px;
+    }
+    .gallery img, .gallery video {
       width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.9);
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-    #modalContent {
-      max-width: 90%;
-      max-height: 80vh;
+      height: 100px;
+      object-fit: cover;
       border-radius: 8px;
-      object-fit: contain;
-    }
-    #closeModal {
-      position: absolute;
-      top: 20px;
-      right: 25px;
-      color: white;
-      font-size: 2.5rem;
-      font-weight: bold;
       cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-
-    #iosInstructions h3 { color: #4faf79; margin-top: 0; text-align: center; }
-    #iosInstructions ol { padding-left: 20px; margin-bottom: 0; }
-    #iosInstructions li { margin-bottom: 8px; }
+    #status {
+      font-weight: bold;
+      color: #e67e22;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
 
   <h1>💍 CASAMENT J&G 📸</h1>
 
-  <!-- Botó intel·ligent d'instal·lació (s'activa segons el mòbil) -->
-  <button id="smartInstallBtn" class="main-btn">Instal·la l'APP al mòbil</button>
+  <button id="smartInstallBtn" class="main-btn" style="display:none;">Instal·la l'APP al mòbil</button>
 
-  <!-- Instruccions específiques per a iPhone (amagades per defecte) -->
-  <div id="iosInstructions">
+  <div id="iosInstructions" style="display:none;">
     <h3>Com instal·lar l'App al teu iPhone</h3>
     <ol>
       <div>Assegura't d'obrir aquest enllaç des del navegador <b>Safari</b>.</div>
@@ -103,15 +100,24 @@
     <p>Carregant records...</p>
   </div>
 
-    <!-- Modal de pantalla completa -->
-   <div id="imageModal">
-    <span id="closeModal">&times;</span>
-    <img id="modalContent" src="" alt="Vista ampliada" style="display:none;" />
-    <video id="modalVideoContent" src="" controls style="display:none; max-width: 90%; max-height: 80vh; border-radius: 8px;"></video>
-   </div>
+  <!-- Modal de pantalla completa amb fletxes i botó de descàrrega -->
+  <div id="imageModal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.95); justify-content:center; align-items:center; flex-direction:column;">
+    <span id="closeModal" style="position:absolute; top:20px; right:25px; color:white; font-size:2.5rem; font-weight:bold; cursor:pointer; z-index: 1001;">&times;</span>
+    
+    <!-- Botó de descarregar -->
+    <a id="downloadBtn" href="" download target="_blank" style="position:absolute; top:25px; left:20px; color:white; background:rgba(255,255,255,0.2); padding:8px 14px; border-radius:20px; text-decoration:none; font-size:0.9rem; z-index: 1001;">Descarregar 📥</a>
+
+    <!-- Contingut Multimèdia -->
+    <img id="modalContent" src="" alt="Vista ampliada" style="display:none; max-width:90%; max-height:80vh; border-radius:8px; object-fit:contain;" />
+    <video id="modalVideoContent" src="" controls style="display:none; max-width:90%; max-height:80vh; border-radius:8px;"></video>
+
+    <!-- Fletxes de navegació -->
+    <button id="prevBtn" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10094;</button>
+    <button id="nextBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10095;</button>
+  </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec'; // Recorda posar el teu link aquí
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec';
 
     const cameraInput = document.getElementById('cameraInput');
     const startBtn = document.getElementById('startBtn');
@@ -125,29 +131,20 @@
     const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
     const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
 
-    // 1. Si és Android i el navegador deixa instal·lar
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
-      smartInstallBtn.style.display = 'inline-block'; // Mostra el botó d'instal·lació
+      smartInstallBtn.style.display = 'inline-block';
     });
 
-    // 2. Si és iPhone i no està instal·lada encara com a app
     if (isIos && !isInStandaloneMode) {
-      smartInstallBtn.style.display = 'inline-block'; // Mostra el botó per desplegar instruccions
+      smartInstallBtn.style.display = 'inline-block';
     }
 
-    // Acció del botó intel·ligent
     smartInstallBtn.addEventListener('click', async () => {
       if (isIos) {
-        // Si és iPhone, alterna la visibilitat de les instruccions
-        if (iosInstructions.style.display === 'block') {
-          iosInstructions.style.display = 'none';
-        } else {
-          iosInstructions.style.display = 'block';
-        }
+        iosInstructions.style.display = iosInstructions.style.display === 'block' ? 'none' : 'block';
       } else if (deferredPrompt) {
-        // Si és Android, llança la instal·lació automàtica
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
@@ -157,7 +154,6 @@
       }
     });
 
-    // Registre Service Worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js');
     }
@@ -173,7 +169,6 @@
       
       status.textContent = 'Llegint imatge original...';
 
-      // GENERAR NOM AMB DATA I HORA
       const now = new Date();
       const any = now.getFullYear();
       const mes = String(now.getMonth() + 1).padStart(2, '0');
@@ -183,10 +178,7 @@
       const segons = String(now.getSeconds()).padStart(2, '0');
       const random = Math.floor(Math.random() * 1000);
       
-      // Extrec l'extensió original (png, jpg, jpeg, etc.)
       const extensio = file.name.split('.').pop() || 'png';
-      
-      // Nou nom: "2026-09-10_22-45-12.jpg"
       const nomPersonalitzat = `${any}-${mes}-${dia}_${hores}-${minuts}-${segons}-${random}.${extensio}`;
 
       const reader = new FileReader();
@@ -206,7 +198,7 @@
           body: new URLSearchParams({
             data: base64,
             type: file.type,
-            name: nomPersonalitzat // LI ENVIEM EL NOU NOM AQUÍ
+            name: nomPersonalitzat
           })
         })
         .then(res => res.text())
@@ -222,61 +214,94 @@
       
       reader.readAsArrayBuffer(file);
     });
-      
 
+    // Lògica del Modal, Fletxes i Descàrrega
     const imageModal = document.getElementById('imageModal');
     const modalContent = document.getElementById('modalContent');
     const modalVideoContent = document.getElementById('modalVideoContent');
     const closeModal = document.getElementById('closeModal');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
 
-    // Tancar el modal en clicar la "X" o fora de la imatge
+    let allFiles = [];
+    let currentIndex = 0;
+
+    function showModalItem(index) {
+      if (index < 0) index = allFiles.length - 1;
+      if (index >= allFiles.length) index = 0;
+      currentIndex = index;
+
+      const file = allFiles[currentIndex];
+
+      // Configurar l'enllaç de descàrrega directa
+      const fileId = file.url.split('id=').pop() || file.url.split('/d/')[1]?.split('/')[0];
+      downloadBtn.href = `https://drive.google.com/uc?export=download&id=${fileId}`;
+      downloadBtn.setAttribute('download', file.name);
+
+      if (file.type.startsWith('image/')) {
+        modalVideoContent.style.display = 'none';
+        modalVideoContent.pause();
+        modalContent.style.display = 'block';
+        modalContent.src = file.url;
+      } else if (file.type.startsWith('video/')) {
+        modalContent.style.display = 'none';
+        modalContent.src = '';
+        modalVideoContent.style.display = 'block';
+        modalVideoContent.src = file.url;
+      }
+      imageModal.style.display = 'flex';
+    }
+
     closeModal.addEventListener('click', () => {
       imageModal.style.display = 'none';
       modalContent.src = '';
       modalVideoContent.src = '';
+      modalVideoContent.pause();
     });
+
     imageModal.addEventListener('click', (e) => {
       if (e.target === imageModal) {
         imageModal.style.display = 'none';
         modalContent.src = '';
         modalVideoContent.src = '';
+        modalVideoContent.pause();
       }
+    });
+
+    prevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showModalItem(currentIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      showModalItem(currentIndex + 1);
     });
 
     function carregarGaleria() {
       fetch(SCRIPT_URL + '?action=getFiles')
         .then(res => res.json())
         .then(files => {
+          allFiles = files; // Guardem la llista globalment per a les fletxes
           galleryContainer.innerHTML = '';
           if (files.length === 0) {
             galleryContainer.innerHTML = '<p>Encara no hi ha fotos. Siguis el primer!</p>';
             return;
           }
-          files.forEach(file => {
+          files.forEach((file, index) => {
             if (file.type.startsWith('image/')) {
               const img = document.createElement('img');
               img.src = file.url;
               img.style.cursor = 'pointer';
-              // En clicar, obrim la imatge en gran
-              img.addEventListener('click', () => {
-                modalVideoContent.style.display = 'none';
-                modalContent.style.display = 'block';
-                modalContent.src = file.url;
-                imageModal.style.display = 'flex';
-              });
+              img.addEventListener('click', () => showModalItem(index));
               galleryContainer.appendChild(img);
             } else if (file.type.startsWith('video/')) {
               const video = document.createElement('video');
               video.src = file.url;
-              video.controls = false; // Desactivem controls petits a la graella perquè es vegi net
+              video.controls = false;
               video.style.cursor = 'pointer';
-              // En clicar el vídeo petit, l'obrim en gran amb controls
-              video.addEventListener('click', () => {
-                modalContent.style.display = 'none';
-                modalVideoContent.style.display = 'block';
-                modalVideoContent.src = file.url;
-                imageModal.style.display = 'flex';
-              });
+              video.addEventListener('click', () => showModalItem(index));
               galleryContainer.appendChild(video);
             }
           });
