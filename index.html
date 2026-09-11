@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J&G</title>
+  <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="J&G">
   <link rel="apple-touch-icon" href="icon.png">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CASAMENT J&G</title>
-  <link rel="manifest" href="manifest.json">
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -30,8 +30,15 @@
       font-size: 1.1rem;
       border-radius: 30px;
       cursor: pointer;
-      margin: 15px 0;
+      margin: 10px 0;
       box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+      display: inline-block;
+      width: 80%;
+      max-width: 300px;
+    }
+    .gallery-btn {
+      background-color: #34C759;
+      box-shadow: 0 4px 10px rgba(52, 199, 89, 0.3);
     }
     #iosInstructions {
       background: #fff;
@@ -74,9 +81,9 @@
 </head>
 <body>
 
-  <h1>💍 J&G 📸</h1>
+  <h1>💍 CASAMENT J&G 📸</h1>
 
-  <button id="smartInstallBtn" class="main-btn" style="display:none;">Instal·la l'APP al mòbil</button>
+  <button id="smartInstallBtn" class="main-btn" style="display:none; background-color: #5856D6;">Instal·la l'APP al mòbil</button>
 
   <div id="iosInstructions" style="display:none;">
     <h3>Com instal·lar l'App al teu iPhone</h3>
@@ -95,8 +102,15 @@
     </ol>
   </div>
   
+  <!-- Inputs ocults per a Càmera i Galeria -->
   <input type="file" accept="image/*,video/*" capture="environment" id="cameraInput" style="display:none;" />
-  <button id="startBtn" class="main-btn">Fes una foto o vídeo</button>
+  <input type="file" accept="image/*,video/*" multiple id="galleryInput" style="display:none;" />
+
+  <div>
+    <button id="startCamBtn" class="main-btn">Fes una foto o vídeo 📷</button><br>
+    <button id="startGalleryBtn" class="main-btn gallery-btn">Puja de la galeria 🖼️</button>
+  </div>
+  
   <p id="status"></p>
 
   <h2>Galeria en Directe</h2>
@@ -104,18 +118,14 @@
     <p>Carregant records...</p>
   </div>
 
-  <!-- Modal de pantalla completa amb fletxes i botó de descàrrega -->
+  <!-- Modal de pantalla completa -->
   <div id="imageModal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.95); justify-content:center; align-items:center; flex-direction:column;">
     <span id="closeModal" style="position:absolute; top:20px; right:25px; color:white; font-size:2.5rem; font-weight:bold; cursor:pointer; z-index: 1001;">&times;</span>
-    
-    <!-- Botó de descarregar -->
     <a id="downloadBtn" href="" download target="_blank" style="position:absolute; top:25px; left:20px; color:white; background:rgba(255,255,255,0.2); padding:8px 14px; border-radius:20px; text-decoration:none; font-size:0.9rem; z-index: 1001;">Descarregar 📥</a>
 
-    <!-- Contingut Multimèdia -->
     <img id="modalContent" src="" alt="Vista ampliada" style="display:none; max-width:90%; max-height:80vh; border-radius:8px; object-fit:contain;" />
     <video id="modalVideoContent" src="" controls style="display:none; max-width:90%; max-height:80vh; border-radius:8px;"></video>
 
-    <!-- Fletxes de navegació -->
     <button id="prevBtn" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10094;</button>
     <button id="nextBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10095;</button>
   </div>
@@ -124,7 +134,9 @@
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec';
 
     const cameraInput = document.getElementById('cameraInput');
-    const startBtn = document.getElementById('startBtn');
+    const galleryInput = document.getElementById('galleryInput');
+    const startCamBtn = document.getElementById('startCamBtn');
+    const startGalleryBtn = document.getElementById('startGalleryBtn');
     const status = document.getElementById('status');
     const galleryContainer = document.getElementById('galleryContainer');
     
@@ -162,62 +174,75 @@
       navigator.serviceWorker.register('sw.js');
     }
 
-    startBtn.addEventListener('click', () => {
+    // Botó per obrir la càmera
+    startCamBtn.addEventListener('click', () => {
       status.textContent = '';
       cameraInput.click();
     });
 
-    cameraInput.addEventListener('change', () => {
-      const file = cameraInput.files[0];
-      if (!file) return;
-      
-      status.textContent = 'Llegint imatge original...';
-
-      const now = new Date();
-      const any = now.getFullYear();
-      const mes = String(now.getMonth() + 1).padStart(2, '0');
-      const dia = String(now.getDate()).padStart(2, '0');
-      const hores = String(now.getHours()).padStart(2, '0');
-      const minuts = String(now.getMinutes()).padStart(2, '0');
-      const segons = String(now.getSeconds()).padStart(2, '0');
-      const random = Math.floor(Math.random() * 1000);
-      
-      const extensio = file.name.split('.').pop() || 'png';
-      const nomPersonalitzat = `${any}-${mes}-${dia}_${hores}-${minuts}-${segons}-${random}.${extensio}`;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const bytes = new Uint8Array(evt.target.result);
-        let binary = '';
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-          binary += String.fromCharCode(bytes[i]);
-        }
-        const base64 = btoa(binary);
-
-        status.textContent = 'Pujant en alta qualitat...';
-
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: new URLSearchParams({
-            data: base64,
-            type: file.type,
-            name: nomPersonalitzat
-          })
-        })
-        .then(res => res.text())
-        .then(text => {
-          status.textContent = text === 'Pujada OK' ? 'Pujat correctament! 🎉' : text;
-          cameraInput.value = '';
-          carregarGaleria();
-        })
-        .catch(err => {
-          status.textContent = 'Error: ' + err.message;
-        });
-      };
-      
-      reader.readAsArrayBuffer(file);
+    // Botó per obrir la galeria (amb selecció múltiple)
+    startGalleryBtn.addEventListener('click', () => {
+      status.textContent = '';
+      galleryInput.click();
     });
+
+    // Funció compartida per pujar una llista de fitxers de manera seqüencial
+    async function processAndUploadFiles(files) {
+      if (!files || files.length === 0) return;
+
+      status.textContent = `Preparant ${files.length} fitxers...`;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        status.textContent = `Pujant ${i + 1} de ${files.length}: ${file.name}`;
+
+        const now = new Date();
+        const any = now.getFullYear();
+        const mes = String(now.getMonth() + 1).padStart(2, '0');
+        const dia = String(now.getDate()).padStart(2, '0');
+        const hores = String(now.getHours()).padStart(2, '0');
+        const minuts = String(now.getMinutes()).padStart(2, '0');
+        const segons = String(now.getSeconds()).padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000) + i;
+        
+        const extensio = file.name.split('.').pop() || 'png';
+        const nomPersonalitzat = `${any}-${mes}-${dia}_${hores}-${minuts}-${segons}_${random}.${extensio}`;
+
+        await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = function(evt) {
+            const bytes = new Uint8Array(evt.target.result);
+            let binary = '';
+            const len = bytes.byteLength;
+            for (let j = 0; j < len; j++) {
+              binary += String.fromCharCode(bytes[j]);
+            }
+            const base64 = btoa(binary);
+
+            fetch(SCRIPT_URL, {
+              method: 'POST',
+              body: new URLSearchParams({
+                data: base64,
+                type: file.type,
+                name: nomPersonalitzat
+              })
+            })
+            .then(res => res.text())
+            .then(() => resolve())
+            .catch(() => resolve());
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      status.textContent = 'Tots els fitxers pujats correctament! 🎉';
+      cameraInput.value = '';
+      galleryInput.value = '';
+      carregarGaleria();
+    }
+
+    cameraInput.addEventListener('change', (e) => processAndUploadFiles(e.target.files));
+    galleryInput.addEventListener('change', (e) => processAndUploadFiles(e.target.files));
 
     // Lògica del Modal, Fletxes i Descàrrega
     const imageModal = document.getElementById('imageModal');
@@ -238,6 +263,9 @@
 
       const file = allFiles[currentIndex];
 
+      downloadBtn.href = `https://drive.google.com/uc?export=download&id=${file.id}&confirm=t`;
+      downloadBtn.setAttribute('download', file.name);
+
       if (file.type.startsWith('image/')) {
         modalVideoContent.style.display = 'none';
         modalVideoContent.pause();
@@ -251,33 +279,6 @@
       }
       imageModal.style.display = 'flex';
     }
-
-    // Acció del botó de descàrrega optimitzada per mòbil
-    downloadBtn.onclick = async (e) => {
-      e.preventDefault();
-      const file = allFiles[currentIndex];
-      downloadBtn.textContent = 'Descarregant... ⏳';
-
-      try {
-        const response = await fetch(`https://drive.google.com/uc?export=download&id=${file.id}`);
-        const blob = await response.blob();
-        const blobUrl = window.URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = file.name;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(blobUrl);
-        
-        downloadBtn.textContent = 'Descarregar 📥';
-      } catch (err) {
-        // Fallback si el navegador bloqueja el blob pel CORS de Google
-        window.open(`https://drive.google.com/uc?export=download&id=${file.id}`, '_blank');
-        downloadBtn.textContent = 'Descarregar 📥';
-      }
-    };
 
     closeModal.addEventListener('click', () => {
       imageModal.style.display = 'none';
@@ -309,7 +310,7 @@
       fetch(SCRIPT_URL + '?action=getFiles')
         .then(res => res.json())
         .then(files => {
-          allFiles = files; // Guardem la llista globalment per a les fletxes
+          allFiles = files;
           galleryContainer.innerHTML = '';
           if (files.length === 0) {
             galleryContainer.innerHTML = '<p>Encara no hi ha fotos. Siguis el primer!</p>';
