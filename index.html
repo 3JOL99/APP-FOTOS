@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ca">
 <head>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="J&G">
+  <link rel="apple-touch-icon" href="icon.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CASAMENT J&G</title>
@@ -234,9 +238,8 @@
 
       const file = allFiles[currentIndex];
 
-      // Configurar l'enllaç de descàrrega directa
-      const fileId = file.url.split('id=').pop() || file.url.split('/d/')[1]?.split('/')[0];
-      downloadBtn.href = `https://drive.google.com/uc?export=download&id=${fileId}`;
+      // Utilitzem l'ID directe que ens ve de l'script
+      downloadBtn.href = `https://drive.google.com/uc?export=download&id=${file.id}`;
       downloadBtn.setAttribute('download', file.name);
 
       if (file.type.startsWith('image/')) {

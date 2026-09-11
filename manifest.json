@@ -1,14 +1,14 @@
 {
-  "name": "CASAMENT - Fotos i Vídeos",
-  "short_name": "Casament",
+  "name": "J&G",
+  "short_name": "J&G",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4faf79",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3177/3177440.png",
-      "sizes": "192x192",
+      "src": "sant jordi.jpeg",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
