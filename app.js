@@ -1,22 +1,18 @@
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec';
 
+const cameraInput = document.getElementById('cameraInput');
 const galleryInput = document.getElementById('galleryInput');
 const startCamBtn = document.getElementById('startCamBtn');
 const startGalleryBtn = document.getElementById('startGalleryBtn');
 const status = document.getElementById('status');
 const galleryContainer = document.getElementById('galleryContainer');
 
-// Elements de la Càmera Interna
-const cameraModal = document.getElementById('cameraModal');
-const cameraStream = document.getElementById('cameraStream');
-const shutterBtn = document.getElementById('shutterBtn');
-const camTray = document.getElementById('camTray');
-const camCounter = document.getElementById('camCounter');
-const closeCamModal = document.getElementById('closeCamModal');
-const sendCamPhotosBtn = document.getElementById('sendCamPhotosBtn');
+const pendingContainer = document.getElementById('pendingContainer');
+const pendingCount = document.getElementById('pendingCount');
+const pendingPreview = document.getElementById('pendingPreview');
+const uploadAllBtn = document.getElementById('uploadAllBtn');
 
-let mediaStream = null;
-let currentSessionFiles = [];
+let pendingFiles = [];
 
 const smartInstallBtn = document.getElementById('smartInstallBtn');
 const iosInstructions = document.getElementById('iosInstructions');
@@ -52,111 +48,75 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js');
 }
 
-// Obrir la càmera interna (estil WhatsApp)
-startCamBtn.addEventListener('click', async () => {
+// Botons per obrir la càmera o galeria
+startCamBtn.addEventListener('click', () => {
   status.textContent = '';
-  currentSessionFiles = [];
-  updateCamTrayUI();
-  
-  try {
-    mediaStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: 'environment' }, 
-      audio: false 
-    });
-    cameraStream.srcObject = mediaStream;
-    cameraModal.style.display = 'flex';
-  } catch (err) {
-    alert('No s\'ha pogut accedir a la càmera. Assegura\'t de donar permisos.');
-  }
+  cameraInput.click();
 });
 
-// Tancar la càmera interna
-closeCamModal.addEventListener('click', () => {
-  stopCameraStream();
-});
-
-function stopCameraStream() {
-  if (mediaStream) {
-    mediaStream.getTracks().forEach(track => track.stop());
-    mediaStream = null;
-  }
-  cameraModal.style.display = 'none';
-}
-
-// Botó de disparar (fent foto)
-shutterBtn.addEventListener('click', () => {
-  if (!mediaStream) return;
-
-  const canvas = document.createElement('canvas');
-  canvas.width = cameraStream.videoWidth || 1280;
-  canvas.height = cameraStream.videoHeight || 720;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(cameraStream, 0, 0, canvas.width, canvas.height);
-
-  canvas.toBlob((blob) => {
-    const now = new Date();
-    const nom = `foto_${now.getTime()}.jpg`;
-    const file = new File([blob], nom, { type: 'image/jpeg' });
-    currentSessionFiles.push(file);
-    updateCamTrayUI();
-  }, 'image/jpeg', 0.85);
-});
-
-// Actualitzar la safata inferior de la càmera
-function updateCamTrayUI() {
-  camCounter.textContent = `${currentSessionFiles.length} fotos`;
-  camTray.innerHTML = '';
-
-  currentSessionFiles.forEach((file, index) => {
-    const div = document.createElement('div');
-    div.className = 'cam-thumb';
-
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(file);
-    div.appendChild(img);
-
-    const removeBtn = document.createElement('div');
-    removeBtn.className = 'cam-remove';
-    removeBtn.textContent = '×';
-    removeBtn.onclick = (e) => {
-      e.stopPropagation();
-      currentSessionFiles.splice(index, 1);
-      updateCamTrayUI();
-    };
-
-    div.appendChild(removeBtn);
-    camTray.appendChild(div);
-  });
-}
-
-// Enviar les fotos fetes des de la càmera interna
-sendCamPhotosBtn.addEventListener('click', async () => {
-  if (currentSessionFiles.length === 0) {
-    alert('Primer has de fer alguna foto!');
-    return;
-  }
-
-  const filesToUpload = [...currentSessionFiles];
-  stopCameraStream();
-  uploadFiles(filesToUpload);
-});
-
-// Seleccionar fitxers de la galeria normal
 startGalleryBtn.addEventListener('click', () => {
   status.textContent = '';
   galleryInput.click();
 });
 
-galleryInput.addEventListener('change', (e) => {
-  if (e.target.files && e.target.files.length > 0) {
-    const filesToUpload = Array.from(e.target.files);
-    galleryInput.value = '';
-    uploadFiles(filesToUpload);
+// Acumular fitxers a la cistella
+function addFilesToPending(fileList) {
+  if (!fileList || fileList.length === 0) return;
+  for (let i = 0; i < fileList.length; i++) {
+    pendingFiles.push(fileList[i]);
   }
-});
+  updatePendingUI();
+  cameraInput.value = '';
+  galleryInput.value = '';
+}
 
-// Funció general per pujar qualsevol llista de fitxers al Drive
-async function uploadFiles(filesToUpload) {
+function updatePendingUI() {
+  pendingCount.textContent = pendingFiles.length;
+  pendingPreview.innerHTML = '';
+
+  if (pendingFiles.length > 0) {
+    pendingContainer.style.display = 'block';
+    pendingFiles.forEach((file, index) => {
+      const thumbDiv = document.createElement('div');
+      thumbDiv.className = 'pending-thumb';
+
+      if (file.type.startsWith('image/')) {
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        thumbDiv.appendChild(img);
+      } else if (file.type.startsWith('video/')) {
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        thumbDiv.appendChild(video);
+      }
+
+      const removeBtn = document.createElement('div');
+      removeBtn.className = 'remove-thumb';
+      removeBtn.textContent = '×';
+      removeBtn.onclick = () => {
+        pendingFiles.splice(index, 1);
+        updatePendingUI();
+      };
+
+      thumbDiv.appendChild(removeBtn);
+      pendingPreview.appendChild(thumbDiv);
+    });
+  } else {
+    pendingContainer.style.display = 'none';
+  }
+}
+
+cameraInput.addEventListener('change', (e) => addFilesToPending(e.target.files));
+galleryInput.addEventListener('change', (e) => addFilesToPending(e.target.files));
+
+// Pujar tots els fitxers acumulats
+uploadAllBtn.addEventListener('click', async () => {
+  if (pendingFiles.length === 0) return;
+
+  const filesToUpload = [...pendingFiles];
+  pendingFiles = [];
+  updatePendingUI();
+
   status.textContent = `Preparant ${filesToUpload.length} fitxers per pujar...`;
 
   for (let i = 0; i < filesToUpload.length; i++) {
@@ -204,9 +164,9 @@ async function uploadFiles(filesToUpload) {
 
   status.textContent = 'Tots els fitxers pujats correctament! 🎉';
   carregarGaleria();
-}
+});
 
-// Lògica del Modal per veure les fotos de la galeria a pantalla completa
+// Lògica del Modal per veure la galeria
 const imageModal = document.getElementById('imageModal');
 const modalContent = document.getElementById('modalContent');
 const modalVideoContent = document.getElementById('modalVideoContent');
@@ -274,26 +234,31 @@ function carregarGaleria() {
     .then(files => {
       allFiles = files;
       galleryContainer.innerHTML = '';
+      
       if (files.length === 0) {
         galleryContainer.innerHTML = 'Encara no hi ha fotos. Siguis el primer!';
-    return;
-    }
-    files.forEach((file, index) => {
-    if (file.type.startsWith('image/')) {
-    const img = document.createElement('img');
-    img.src = file.url;
-    img.style.cursor = 'pointer';
-    img.addEventListener('click', () => showModalItem(index));
-    galleryContainer.appendChild(img);
-    } else if (file.type.startsWith('video/')) {
-    const video = document.createElement('video');
-    video.src = file.url;
-    video.controls = false;
-    video.style.cursor = 'pointer';
-    video.addEventListener('click', () => showModalItem(index));
-    galleryContainer.appendChild(video);
-    }
-    });
+        return;
+      }
+      
+      files.forEach((file, index) => {
+        if (file.type && file.type.startsWith('image/')) {
+          const img = document.createElement('img');
+          img.src = file.url;
+          img.style.cursor = 'pointer';
+          img.addEventListener('click', () => showModalItem(index));
+          galleryContainer.appendChild(img);
+        } else if (file.type && file.type.startsWith('video/')) {
+          const video = document.createElement('video');
+          video.src = file.url;
+          video.controls = false;
+          video.style.cursor = 'pointer';
+          video.addEventListener('click', () => showModalItem(index));
+          galleryContainer.appendChild(video);
+        }
+      });
+    })
+    .catch(() => {
+      galleryContainer.innerHTML = 'Error al carregar la galeria.';
     });
 }
 
