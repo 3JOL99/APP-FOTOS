@@ -185,7 +185,11 @@ function showModalItem(index) {
 
   const file = allFiles[currentIndex];
 
-  downloadBtn.href = `https://drive.google.com/uc?export=download&id=${file.id}&confirm=t`;
+  downloadBtn.onclick = (e) => {
+  e.preventDefault();
+  const file = allFiles[currentIndex];
+  window.open(file.url, '_blank');
+};
   downloadBtn.setAttribute('download', file.name);
 
   if (file.type.startsWith('image/')) {
