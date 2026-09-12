@@ -185,13 +185,6 @@ function showModalItem(index) {
 
   const file = allFiles[currentIndex];
 
-  downloadBtn.onclick = (e) => {
-  e.preventDefault();
-  const file = allFiles[currentIndex];
-  window.open(file.url, '_blank');
-};
-  downloadBtn.setAttribute('download', file.name);
-
   if (file.type.startsWith('image/')) {
     modalVideoContent.style.display = 'none';
     modalVideoContent.pause();
@@ -265,5 +258,30 @@ function carregarGaleria() {
       galleryContainer.innerHTML = 'Error al carregar la galeria.';
     });
 }
+
+const downloadInstructions = document.getElementById('downloadInstructions');
+const closeDownloadInstructions = document.getElementById('closeDownloadInstructions');
+
+// Obrir instruccions
+downloadBtn.addEventListener('click', function () {
+  downloadInstructions.style.display = 'flex';
+});
+
+// Tancar amb el botó
+closeDownloadInstructions.addEventListener('click', function () {
+  downloadInstructions.style.display = 'none';
+});
+
+// Tancar tocant fora del popup
+downloadInstructions.addEventListener('click', function (event) {
+  if (event.target === downloadInstructions) {
+    downloadInstructions.style.display = 'none';
+  }
+});
+
+// Si l'usuari clica a qualsevol altre lloc del modal, amagem les instruccions
+imageModal.addEventListener('click', () => {
+  downloadInstructions.style.display = 'none';
+});
 
 carregarGaleria();
