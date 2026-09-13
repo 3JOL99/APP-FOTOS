@@ -121,7 +121,7 @@ uploadAllBtn.addEventListener('click', async () => {
 
   for (let i = 0; i < filesToUpload.length; i++) {
     const file = filesToUpload[i];
-    status.textContent = `Pujant \({i + 1} de\){filesToUpload.length}...`;
+    status.textContent = `Pujant ${i + 1} de ${filesToUpload.length}...`;
 
     const now = new Date();
     const any = now.getFullYear();
@@ -133,7 +133,7 @@ uploadAllBtn.addEventListener('click', async () => {
     const random = Math.floor(Math.random() * 1000) + i;
     
     const extensio = file.name.split('.').pop() || 'jpg';
-    const nomPersonalitzat = `\({any}-\){mes}-\({dia}_\){hores}-\({minuts}-\){segons}_\({random}.\){extensio}`;
+    const nomPersonalitzat = `${any}-${mes}-${dia}_${hores}-${minuts}-${segons}_${random}.${extensio}`;
 
     await new Promise((resolve) => {
       const reader = new FileReader();
@@ -284,4 +284,54 @@ imageModal.addEventListener('click', () => {
   downloadInstructions.style.display = 'none';
 });
 
-carregarGaleria();
+// =========================
+// SISTEMA DE PESTANYES
+// =========================
+
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabButtons.forEach(button => {
+
+  button.addEventListener('click', () => {
+
+    const targetTab = button.dataset.tab;
+
+    // Activar botó
+    tabButtons.forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    button.classList.add('active');
+
+    // Activar contingut
+    tabContents.forEach(tab => {
+      tab.classList.remove('active');
+    });
+
+    document.getElementById(targetTab).classList.add('active');
+
+    // Si entrem a la galeria, actualitzem
+    if (targetTab === 'galleryTab') {
+      carregarGaleria();
+    }
+
+  });
+
+});
+
+// =========================
+// ACTUALITZACIÓ AUTOMÀTICA
+// =========================
+
+// Actualitzar la galeria cada 10 segons
+setInterval(() => {
+
+  const galleryTab = document.getElementById('galleryTab');
+
+  // Només actualitzem si la pestanya està visible
+  if (galleryTab.classList.contains('active')) {
+    carregarGaleria();
+  }
+
+}, 10000);

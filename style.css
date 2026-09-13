@@ -114,3 +114,128 @@ h1 {
   color: #e67e22;
   margin-top: 10px;
 }
+
+/* ========================= */
+/* PESTANYES                  */
+/* ========================= */
+
+.tabs {
+  display: flex;
+  max-width: 500px;
+  margin: 20px auto;
+  background: #e9ecef;
+  border-radius: 14px;
+  padding: 4px;
+  position: sticky;
+  top: 10px;
+  z-index: 100;
+}
+
+.tab-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 12px 10px;
+  border-radius: 11px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: white;
+  color: #222;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+
+/* ========================= */
+/* CONTINGUT PESTANYES       */
+/* ========================= */
+
+.tab-content {
+  display: none;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+
+/* ========================= */
+/* CAPÇALERA GALERIA         */
+/* ========================= */
+
+.gallery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.gallery-header h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.refresh-btn {
+  border: none;
+  background: #e9ecef;
+  padding: 9px 14px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.refresh-btn:active {
+  transform: scale(0.96);
+}
+
+
+/* ========================= */
+/* GALERIA                   */
+/* ========================= */
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin-top: 20px;
+  padding-bottom: 40px;
+}
+
+.gallery img,
+.gallery video {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+}
+
+
+/* ========================= */
+/* MÒBIL                    */
+/* ========================= */
+
+@media (max-width: 400px) {
+
+  body {
+    padding: 12px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .gallery {
+    gap: 4px;
+  }
+
+}
