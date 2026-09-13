@@ -57,15 +57,63 @@
 
   <div class="tabs">
 
-    <button class="tab-btn active" data-tab="photosTab">
-      📸 Fotos
-    </button>
+  <button type="button" class="tab-btn active" data-tab="photosTab">
+    📸 Fotos
+  </button>
 
-    <button class="tab-btn" data-tab="galleryTab">
-      ☁️ Galeria
+  <button type="button" class="tab-btn" data-tab="galleryTab">
+    ☁️ Galeria
+  </button>
+
+  </div>
+
+  <section id="photosTab" class="tab-content active">
+
+  <h2>📸 Afegir fotos</h2>
+
+  <button id="startCamBtn" class="main-btn">
+    Fes una foto o vídeo 📷
+  </button>
+
+  <button id="startGalleryBtn" class="main-btn gallery-btn">
+    Selecciona de la galeria 🖼️
+  </button>
+
+  <div id="pendingContainer">
+    <h3>
+      Llestos per pujar
+      (<span id="pendingCount">0</span>)
+    </h3>
+
+    <div id="pendingPreview"></div>
+
+    <button id="uploadAllBtn" class="main-btn upload-all-btn">
+      Pujar-ho tot a la galeria 🚀
+    </button>
+  </div>
+
+  <p id="status"></p>
+
+</section>
+
+
+<section id="galleryTab" class="tab-content">
+
+  <div class="gallery-header">
+
+    <h2>☁️ Galeria en directe</h2>
+
+    <button type="button" id="refreshGalleryBtn" class="refresh-btn">
+      🔄 Actualitzar
     </button>
 
   </div>
+
+  <div class="gallery" id="galleryContainer">
+    <p>Carregant fotos...</p>
+  </div>
+
+</section>
 
 
   <!-- ========================= -->

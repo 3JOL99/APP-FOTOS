@@ -285,42 +285,6 @@ imageModal.addEventListener('click', () => {
 });
 
 // =========================
-// SISTEMA DE PESTANYES
-// =========================
-
-const tabButtons = document.querySelectorAll('.tab-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-
-tabButtons.forEach(button => {
-
-  button.addEventListener('click', () => {
-
-    const targetTab = button.dataset.tab;
-
-    // Activar botó
-    tabButtons.forEach(btn => {
-      btn.classList.remove('active');
-    });
-
-    button.classList.add('active');
-
-    // Activar contingut
-    tabContents.forEach(tab => {
-      tab.classList.remove('active');
-    });
-
-    document.getElementById(targetTab).classList.add('active');
-
-    // Si entrem a la galeria, actualitzem
-    if (targetTab === 'galleryTab') {
-      carregarGaleria();
-    }
-
-  });
-
-});
-
-// =========================
 // ACTUALITZACIÓ AUTOMÀTICA
 // =========================
 
@@ -335,3 +299,47 @@ setInterval(() => {
   }
 
 }, 10000);
+
+// ================================
+// PESTANYES
+// ================================
+
+const tabButtons = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+
+tabButtons.forEach(button => {
+
+  button.addEventListener('click', function () {
+
+    const targetId = this.getAttribute('data-tab');
+
+    console.log('Pestanya seleccionada:', targetId);
+
+    // Treure active de tots els botons
+    tabButtons.forEach(btn => {
+      btn.classList.remove('active');
+    });
+
+    // Activar el botó clicat
+    this.classList.add('active');
+
+    // Amagar totes les pestanyes
+    tabContents.forEach(tab => {
+      tab.classList.remove('active');
+    });
+
+    // Mostrar la pestanya seleccionada
+    const targetTab = document.getElementById(targetId);
+
+    if (targetTab) {
+      targetTab.classList.add('active');
+    }
+
+    // Si obrim la galeria, carregar-la
+    if (targetId === 'galleryTab') {
+      carregarGaleria();
+    }
+
+  });
+
+});
