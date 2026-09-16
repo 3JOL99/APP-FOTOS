@@ -343,3 +343,12 @@ tabButtons.forEach(button => {
   });
 
 });
+
+const refreshGalleryBtn =
+  document.getElementById('refreshGalleryBtn');
+
+if (refreshGalleryBtn) {
+  refreshGalleryBtn.addEventListener('click', () => {
+    carregarGaleria();
+  });
+}
