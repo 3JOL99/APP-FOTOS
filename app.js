@@ -1,354 +1,845 @@
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec';
+// ============================================================
+// J&G - APP.JS
+// ============================================================
+
+const SCRIPT_URL =
+  'https://script.google.com/macros/s/AKfycbxbVElWq2BqMUS91KGNe5_nrcFI9hF6Z6Su0emRA9nx2bS_rQEqOZQTulEIGES-THM2TQ/exec';
+
+
+// ============================================================
+// ELEMENTS
+// ============================================================
 
 const cameraInput = document.getElementById('cameraInput');
 const galleryInput = document.getElementById('galleryInput');
+
 const startCamBtn = document.getElementById('startCamBtn');
 const startGalleryBtn = document.getElementById('startGalleryBtn');
-const status = document.getElementById('status');
-const galleryContainer = document.getElementById('galleryContainer');
 
-const pendingContainer = document.getElementById('pendingContainer');
-const pendingCount = document.getElementById('pendingCount');
-const pendingPreview = document.getElementById('pendingPreview');
 const uploadAllBtn = document.getElementById('uploadAllBtn');
 
+const status = document.getElementById('status');
+
+const pendingContainer = document.getElementById('pendingContainer');
+const pendingPreview = document.getElementById('pendingPreview');
+
+const galleryContainer = document.getElementById('galleryContainer');
+const refreshGalleryBtn = document.getElementById('refreshGalleryBtn');
+
+
+// ============================================================
+// VARIABLES
+// ============================================================
+
 let pendingFiles = [];
-
-const smartInstallBtn = document.getElementById('smartInstallBtn');
-const iosInstructions = document.getElementById('iosInstructions');
-
-let deferredPrompt = null;
-const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
-const isInStandaloneMode = ('standalone' in window.navigator) && (window.navigator.standalone);
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  smartInstallBtn.style.display = 'inline-block';
-});
-
-if (isIos && !isInStandaloneMode) {
-  smartInstallBtn.style.display = 'inline-block';
-}
-
-smartInstallBtn.addEventListener('click', async () => {
-  if (isIos) {
-    iosInstructions.style.display = iosInstructions.style.display === 'block' ? 'none' : 'block';
-  } else if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') {
-      smartInstallBtn.style.display = 'none';
-    }
-    deferredPrompt = null;
-  }
-});
-
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-
-// Botons per obrir la càmera o galeria
-startCamBtn.addEventListener('click', () => {
-  status.textContent = '';
-  cameraInput.click();
-});
-
-startGalleryBtn.addEventListener('click', () => {
-  status.textContent = '';
-  galleryInput.click();
-});
-
-// Acumular fitxers a la cistella
-function addFilesToPending(fileList) {
-  if (!fileList || fileList.length === 0) return;
-  for (let i = 0; i < fileList.length; i++) {
-    pendingFiles.push(fileList[i]);
-  }
-  updatePendingUI();
-  cameraInput.value = '';
-  galleryInput.value = '';
-}
-
-function updatePendingUI() {
-  pendingCount.textContent = pendingFiles.length;
-  pendingPreview.innerHTML = '';
-
-  if (pendingFiles.length > 0) {
-    pendingContainer.style.display = 'block';
-    pendingFiles.forEach((file, index) => {
-      const thumbDiv = document.createElement('div');
-      thumbDiv.className = 'pending-thumb';
-
-      if (file.type.startsWith('image/')) {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        thumbDiv.appendChild(img);
-      } else if (file.type.startsWith('video/')) {
-        const video = document.createElement('video');
-        video.src = URL.createObjectURL(file);
-        thumbDiv.appendChild(video);
-      }
-
-      const removeBtn = document.createElement('div');
-      removeBtn.className = 'remove-thumb';
-      removeBtn.textContent = '×';
-      removeBtn.onclick = () => {
-        pendingFiles.splice(index, 1);
-        updatePendingUI();
-      };
-
-      thumbDiv.appendChild(removeBtn);
-      pendingPreview.appendChild(thumbDiv);
-    });
-  } else {
-    pendingContainer.style.display = 'none';
-  }
-}
-
-cameraInput.addEventListener('change', (e) => addFilesToPending(e.target.files));
-galleryInput.addEventListener('change', (e) => addFilesToPending(e.target.files));
-
-// Pujar tots els fitxers acumulats
-uploadAllBtn.addEventListener('click', async () => {
-  if (pendingFiles.length === 0) return;
-
-  const filesToUpload = [...pendingFiles];
-  pendingFiles = [];
-  updatePendingUI();
-
-  status.textContent = `Preparant ${filesToUpload.length} fitxers per pujar...`;
-
-  for (let i = 0; i < filesToUpload.length; i++) {
-    const file = filesToUpload[i];
-    status.textContent = `Pujant ${i + 1} de ${filesToUpload.length}...`;
-
-    const now = new Date();
-    const any = now.getFullYear();
-    const mes = String(now.getMonth() + 1).padStart(2, '0');
-    const dia = String(now.getDate()).padStart(2, '0');
-    const hores = String(now.getHours()).padStart(2, '0');
-    const minuts = String(now.getMinutes()).padStart(2, '0');
-    const segons = String(now.getSeconds()).padStart(2, '0');
-    const random = Math.floor(Math.random() * 1000) + i;
-    
-    const extensio = file.name.split('.').pop() || 'jpg';
-    const nomPersonalitzat = `${any}-${mes}-${dia}_${hores}-${minuts}-${segons}_${random}.${extensio}`;
-
-    await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const bytes = new Uint8Array(evt.target.result);
-        let binary = '';
-        const len = bytes.byteLength;
-        for (let j = 0; j < len; j++) {
-          binary += String.fromCharCode(bytes[j]);
-        }
-        const base64 = btoa(binary);
-
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          body: new URLSearchParams({
-            data: base64,
-            type: file.type,
-            name: nomPersonalitzat
-          })
-        })
-        .then(res => res.text())
-        .then(() => resolve())
-        .catch(() => resolve());
-      };
-      reader.readAsArrayBuffer(file);
-    });
-  }
-
-  status.textContent = 'Tots els fitxers pujats correctament! 🎉';
-  carregarGaleria();
-});
-
-// Lògica del Modal per veure la galeria
-const imageModal = document.getElementById('imageModal');
-const modalContent = document.getElementById('modalContent');
-const modalVideoContent = document.getElementById('modalVideoContent');
-const closeModal = document.getElementById('closeModal');
-const downloadBtn = document.getElementById('downloadBtn');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-
 let allFiles = [];
 let currentIndex = 0;
 
-function showModalItem(index) {
-  if (index < 0) index = allFiles.length - 1;
-  if (index >= allFiles.length) index = 0;
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function setStatus(message) {
+  if (status) {
+    status.textContent = message || '';
+  }
+}
+
+
+// ============================================================
+// CÀMERA
+// ============================================================
+
+if (startCamBtn && cameraInput) {
+  startCamBtn.addEventListener('click', function () {
+    setStatus('');
+    cameraInput.value = '';
+    cameraInput.click();
+  });
+}
+
+
+// ============================================================
+// GALERIA DEL MÒBIL
+// ============================================================
+
+if (startGalleryBtn && galleryInput) {
+  startGalleryBtn.addEventListener('click', function () {
+    setStatus('');
+    galleryInput.value = '';
+    galleryInput.click();
+  });
+}
+
+
+// ============================================================
+// FITXERS DE LA CÀMERA
+// ============================================================
+
+if (cameraInput) {
+  cameraInput.addEventListener('change', function (event) {
+    const files = Array.from(event.target.files || []);
+
+    if (files.length > 0) {
+      afegirFitxers(files);
+    }
+
+    cameraInput.value = '';
+  });
+}
+
+
+// ============================================================
+// FITXERS DE LA GALERIA
+// ============================================================
+
+if (galleryInput) {
+  galleryInput.addEventListener('change', function (event) {
+    const files = Array.from(event.target.files || []);
+
+    if (files.length > 0) {
+      afegirFitxers(files);
+    }
+
+    galleryInput.value = '';
+  });
+}
+
+
+// ============================================================
+// AFEGIR FITXERS
+// ============================================================
+
+function afegirFitxers(files) {
+  files.forEach(function (file) {
+    if (
+      file.type.startsWith('image/') ||
+      file.type.startsWith('video/')
+    ) {
+      pendingFiles.push(file);
+    }
+  });
+
+  mostrarPendents();
+}
+
+
+// ============================================================
+// MOSTRAR FITXERS PENDENTS
+// ============================================================
+
+function mostrarPendents() {
+  if (!pendingContainer || !pendingPreview) {
+    return;
+  }
+
+  pendingPreview.innerHTML = '';
+
+  if (pendingFiles.length === 0) {
+    pendingContainer.style.display = 'none';
+    return;
+  }
+
+  pendingContainer.style.display = 'block';
+
+  pendingFiles.forEach(function (file, index) {
+    const wrapper = document.createElement('div');
+
+    wrapper.className = 'pending-thumb';
+
+    let media;
+
+    if (file.type.startsWith('video/')) {
+      media = document.createElement('video');
+      media.muted = true;
+      media.playsInline = true;
+    } else {
+      media = document.createElement('img');
+    }
+
+    media.src = URL.createObjectURL(file);
+    media.alt = file.name;
+
+    wrapper.appendChild(media);
+
+    const removeButton = document.createElement('button');
+
+    removeButton.type = 'button';
+    removeButton.className = 'remove-thumb';
+    removeButton.textContent = '×';
+
+    removeButton.addEventListener('click', function () {
+      pendingFiles.splice(index, 1);
+      mostrarPendents();
+    });
+
+    wrapper.appendChild(removeButton);
+
+    pendingPreview.appendChild(wrapper);
+  });
+}
+
+
+// ============================================================
+// PUJAR TOTS
+// ============================================================
+
+if (uploadAllBtn) {
+  uploadAllBtn.addEventListener('click', function () {
+    if (pendingFiles.length === 0) {
+      setStatus('No hi ha fitxers pendents per pujar.');
+      return;
+    }
+
+    pujarFitxers();
+  });
+}
+
+
+// ============================================================
+// PUJAR FITXERS
+// ============================================================
+
+async function pujarFitxers() {
+  const filesToUpload = pendingFiles.slice();
+
+  uploadAllBtn.disabled = true;
+
+  try {
+    for (let i = 0; i < filesToUpload.length; i++) {
+      const file = filesToUpload[i];
+
+      setStatus(
+        'Pujant ' +
+        (i + 1) +
+        ' de ' +
+        filesToUpload.length +
+        '...'
+      );
+
+      const base64 = await convertirABase64(file);
+
+      const extensio = obtenirExtensio(file.name);
+
+      const ara = new Date();
+
+      const any = ara.getFullYear();
+      const mes = String(ara.getMonth() + 1).padStart(2, '0');
+      const dia = String(ara.getDate()).padStart(2, '0');
+
+      const hores = String(ara.getHours()).padStart(2, '0');
+      const minuts = String(ara.getMinutes()).padStart(2, '0');
+      const segons = String(ara.getSeconds()).padStart(2, '0');
+
+      const random = Math.floor(Math.random() * 10000)
+        .toString()
+        .padStart(4, '0');
+
+      const nomPersonalitzat =
+        any +
+        '-' +
+        mes +
+        '-' +
+        dia +
+        '_' +
+        hores +
+        '-' +
+        minuts +
+        '-' +
+        segons +
+        '_' +
+        random +
+        '.' +
+        extensio;
+
+      const resposta = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify({
+          data: base64,
+          type: file.type,
+          name: nomPersonalitzat
+        })
+      });
+
+      if (!resposta.ok) {
+        throw new Error(
+          'Error HTTP ' + resposta.status
+        );
+      }
+    }
+
+    pendingFiles = [];
+
+    mostrarPendents();
+
+    setStatus(
+      'Tots els fitxers s’han pujat correctament.'
+    );
+
+    await carregarGaleria();
+
+  } catch (error) {
+    console.error('Error pujant fitxers:', error);
+
+    setStatus(
+      'Hi ha hagut un error en pujar els fitxers.'
+    );
+
+  } finally {
+    uploadAllBtn.disabled = false;
+  }
+}
+
+
+// ============================================================
+// FILE -> BASE64
+// ============================================================
+
+function convertirABase64(file) {
+  return new Promise(function (resolve, reject) {
+    const reader = new FileReader();
+
+    reader.onload = function () {
+      const resultat = reader.result;
+      const base64 = resultat.split(',')[1];
+
+      resolve(base64);
+    };
+
+    reader.onerror = function () {
+      reject(
+        new Error('No s’ha pogut llegir el fitxer.')
+      );
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+
+// ============================================================
+// EXTENSIÓ
+// ============================================================
+
+function obtenirExtensio(nom) {
+  const parts = nom.split('.');
+
+  if (parts.length < 2) {
+    return 'jpg';
+  }
+
+  return parts.pop().toLowerCase();
+}
+
+
+// ============================================================
+// CARREGAR GALERIA
+// ============================================================
+
+async function carregarGaleria() {
+  if (!galleryContainer) {
+    return;
+  }
+
+  galleryContainer.innerHTML =
+    '<p>Carregant galeria...</p>';
+
+  try {
+    const resposta = await fetch(
+      SCRIPT_URL +
+      '?action=getFiles&t=' +
+      Date.now()
+    );
+
+    if (!resposta.ok) {
+      throw new Error(
+        'Error HTTP ' + resposta.status
+      );
+    }
+
+    const dades = await resposta.json();
+
+    if (!Array.isArray(dades)) {
+      throw new Error(
+        'La resposta no és una llista.'
+      );
+    }
+
+    allFiles = dades;
+
+    mostrarGaleria();
+
+  } catch (error) {
+    console.error(
+      'Error carregant la galeria:',
+      error
+    );
+
+    galleryContainer.innerHTML =
+      '<p>No s’ha pogut carregar la galeria.</p>';
+  }
+}
+
+
+// ============================================================
+// MOSTRAR GALERIA
+// ============================================================
+
+function mostrarGaleria() {
+  if (!galleryContainer) {
+    return;
+  }
+
+  galleryContainer.innerHTML = '';
+
+  if (allFiles.length === 0) {
+    galleryContainer.innerHTML =
+      '<p>Encara no hi ha fotos ni vídeos.</p>';
+
+    return;
+  }
+
+  allFiles.forEach(function (file, index) {
+    const item = document.createElement('div');
+
+    item.className = 'gallery-item';
+
+    if (
+      file.type &&
+      file.type.startsWith('image/')
+    ) {
+      const img = document.createElement('img');
+
+      img.src = file.url;
+      img.alt = file.name || 'Foto';
+      img.loading = 'lazy';
+
+      img.addEventListener('click', function () {
+        obrirModal(index);
+      });
+
+      item.appendChild(img);
+
+    } else if (
+      file.type &&
+      file.type.startsWith('video/')
+    ) {
+      const video = document.createElement('video');
+
+      video.src = file.url;
+      video.muted = true;
+      video.playsInline = true;
+      video.preload = 'metadata';
+
+      video.addEventListener('click', function () {
+        obrirModal(index);
+      });
+
+      item.appendChild(video);
+
+    } else {
+      const link = document.createElement('a');
+
+      link.href = file.url;
+      link.target = '_blank';
+      link.textContent =
+        file.name || 'Obrir fitxer';
+
+      item.appendChild(link);
+    }
+
+    galleryContainer.appendChild(item);
+  });
+}
+
+
+// ============================================================
+// REFRESCAR GALERIA
+// ============================================================
+
+if (refreshGalleryBtn) {
+  refreshGalleryBtn.addEventListener(
+    'click',
+    async function () {
+      refreshGalleryBtn.disabled = true;
+
+      try {
+        await carregarGaleria();
+      } finally {
+        refreshGalleryBtn.disabled = false;
+      }
+    }
+  );
+}
+
+
+// ============================================================
+// MODAL
+// ============================================================
+
+const imageModal =
+  document.getElementById('imageModal');
+
+const closeModal =
+  document.getElementById('closeModal');
+
+const downloadBtn =
+  document.getElementById('downloadBtn');
+
+const modalContent =
+  document.getElementById('modalContent');
+
+const modalVideoContent =
+  document.getElementById('modalVideoContent');
+
+const prevBtn =
+  document.getElementById('prevBtn');
+
+const nextBtn =
+  document.getElementById('nextBtn');
+
+
+// ============================================================
+// OBRIR MODAL
+// ============================================================
+
+function obrirModal(index) {
+  if (!imageModal) {
+    return;
+  }
+
+  if (
+    allFiles.length === 0 ||
+    index < 0 ||
+    index >= allFiles.length
+  ) {
+    return;
+  }
+
   currentIndex = index;
 
-  const file = allFiles[currentIndex];
+  mostrarFitxerModal();
 
-  if (file.type.startsWith('image/')) {
-    modalVideoContent.style.display = 'none';
-    modalVideoContent.pause();
-    modalContent.style.display = 'block';
-    modalContent.src = file.url;
-  } else if (file.type.startsWith('video/')) {
-    modalContent.style.display = 'none';
-    modalContent.src = '';
-    modalVideoContent.style.display = 'block';
-    modalVideoContent.src = file.url;
-  }
   imageModal.style.display = 'flex';
 }
 
-closeModal.addEventListener('click', () => {
-  imageModal.style.display = 'none';
-  modalContent.src = '';
-  modalVideoContent.src = '';
-  modalVideoContent.pause();
-});
 
-imageModal.addEventListener('click', (e) => {
-  if (e.target === imageModal) {
-    imageModal.style.display = 'none';
-    modalContent.src = '';
-    modalVideoContent.src = '';
-    modalVideoContent.pause();
+// ============================================================
+// MOSTRAR FITXER AL MODAL
+// ============================================================
+
+function mostrarFitxerModal() {
+  if (allFiles.length === 0) {
+    return;
   }
-});
 
-prevBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  showModalItem(currentIndex - 1);
-});
+  const file = allFiles[currentIndex];
 
-nextBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  showModalItem(currentIndex + 1);
-});
+  if (modalContent) {
+    modalContent.innerHTML = '';
+    modalContent.style.display = 'none';
+  }
 
-function carregarGaleria() {
-  fetch(SCRIPT_URL + '?action=getFiles')
-    .then(res => res.json())
-    .then(files => {
-      allFiles = files;
-      galleryContainer.innerHTML = '';
-      
-      if (files.length === 0) {
-        galleryContainer.innerHTML = 'Encara no hi ha fotos. Siguis el primer!';
+  if (modalVideoContent) {
+    modalVideoContent.innerHTML = '';
+    modalVideoContent.style.display = 'none';
+  }
+
+  if (
+    file.type &&
+    file.type.startsWith('image/')
+  ) {
+    if (modalContent) {
+      const img = document.createElement('img');
+
+      img.src = file.url;
+      img.alt = file.name || 'Foto';
+
+      modalContent.appendChild(img);
+
+      modalContent.style.display = 'block';
+    }
+
+  } else if (
+    file.type &&
+    file.type.startsWith('video/')
+  ) {
+    if (modalVideoContent) {
+      const video = document.createElement('video');
+
+      video.src = file.url;
+      video.controls = true;
+      video.autoplay = true;
+      video.playsInline = true;
+
+      modalVideoContent.appendChild(video);
+
+      modalVideoContent.style.display = 'block';
+    }
+  }
+
+  if (downloadBtn) {
+    downloadBtn.onclick = function () {
+      descarregarFitxer(file);
+    };
+  }
+}
+
+
+// ============================================================
+// TANCAR MODAL
+// ============================================================
+
+function tancarModal() {
+  if (!imageModal) {
+    return;
+  }
+
+  imageModal.style.display = 'none';
+
+  if (modalContent) {
+    modalContent.innerHTML = '';
+  }
+
+  if (modalVideoContent) {
+    modalVideoContent.innerHTML = '';
+  }
+}
+
+
+if (closeModal) {
+  closeModal.addEventListener(
+    'click',
+    function () {
+      tancarModal();
+    }
+  );
+}
+
+
+if (imageModal) {
+  imageModal.addEventListener(
+    'click',
+    function (event) {
+      if (event.target === imageModal) {
+        tancarModal();
+      }
+    }
+  );
+}
+
+
+// ============================================================
+// ANTERIOR
+// ============================================================
+
+if (prevBtn) {
+  prevBtn.addEventListener(
+    'click',
+    function () {
+      if (allFiles.length === 0) {
         return;
       }
-      
-      files.forEach((file, index) => {
-        if (file.type && file.type.startsWith('image/')) {
-          const img = document.createElement('img');
-          img.src = file.url;
-          img.style.cursor = 'pointer';
-          img.addEventListener('click', () => showModalItem(index));
-          galleryContainer.appendChild(img);
-        } else if (file.type && file.type.startsWith('video/')) {
-          const video = document.createElement('video');
-          video.src = file.url;
-          video.controls = false;
-          video.style.cursor = 'pointer';
-          video.addEventListener('click', () => showModalItem(index));
-          galleryContainer.appendChild(video);
-        }
-      });
-    })
-    .catch(() => {
-      galleryContainer.innerHTML = 'Error al carregar la galeria.';
-    });
+
+      currentIndex--;
+
+      if (currentIndex < 0) {
+        currentIndex = allFiles.length - 1;
+      }
+
+      mostrarFitxerModal();
+    }
+  );
 }
 
-const downloadInstructions = document.getElementById('downloadInstructions');
-const closeDownloadInstructions = document.getElementById('closeDownloadInstructions');
 
-// Obrir instruccions
-downloadBtn.addEventListener('click', function () {
-  downloadInstructions.style.display = 'flex';
-});
+// ============================================================
+// SEGÜENT
+// ============================================================
 
-// Tancar amb el botó
-closeDownloadInstructions.addEventListener('click', function () {
-  downloadInstructions.style.display = 'none';
-});
+if (nextBtn) {
+  nextBtn.addEventListener(
+    'click',
+    function () {
+      if (allFiles.length === 0) {
+        return;
+      }
 
-// Tancar tocant fora del popup
-downloadInstructions.addEventListener('click', function (event) {
-  if (event.target === downloadInstructions) {
-    downloadInstructions.style.display = 'none';
-  }
-});
+      currentIndex++;
 
-// Si l'usuari clica a qualsevol altre lloc del modal, amagem les instruccions
-imageModal.addEventListener('click', () => {
-  downloadInstructions.style.display = 'none';
-});
+      if (currentIndex >= allFiles.length) {
+        currentIndex = 0;
+      }
 
-// =========================
-// ACTUALITZACIÓ AUTOMÀTICA
-// =========================
+      mostrarFitxerModal();
+    }
+  );
+}
 
-// Actualitzar la galeria cada 10 segons
-setInterval(() => {
 
-  const galleryTab = document.getElementById('galleryTab');
+// ============================================================
+// TECLAT
+// ============================================================
 
-  // Només actualitzem si la pestanya està visible
-  if (galleryTab.classList.contains('active')) {
-    carregarGaleria();
-  }
-
-}, 10000);
-
-// ================================
-// PESTANYES
-// ================================
-
-const tabButtons = document.querySelectorAll('.tab-btn');
-const tabContents = document.querySelectorAll('.tab-content');
-
-tabButtons.forEach(button => {
-
-  button.addEventListener('click', function () {
-
-    const targetId = this.getAttribute('data-tab');
-
-    console.log('Pestanya seleccionada:', targetId);
-
-    // Treure active de tots els botons
-    tabButtons.forEach(btn => {
-      btn.classList.remove('active');
-    });
-
-    // Activar el botó clicat
-    this.classList.add('active');
-
-    // Amagar totes les pestanyes
-    tabContents.forEach(tab => {
-      tab.classList.remove('active');
-    });
-
-    // Mostrar la pestanya seleccionada
-    const targetTab = document.getElementById(targetId);
-
-    if (targetTab) {
-      targetTab.classList.add('active');
+document.addEventListener(
+  'keydown',
+  function (event) {
+    if (
+      !imageModal ||
+      imageModal.style.display === 'none'
+    ) {
+      return;
     }
 
-    // Si obrim la galeria, carregar-la
-    if (targetId === 'galleryTab') {
+    if (event.key === 'Escape') {
+      tancarModal();
+    }
+
+    if (event.key === 'ArrowLeft') {
+      if (prevBtn) {
+        prevBtn.click();
+      }
+    }
+
+    if (event.key === 'ArrowRight') {
+      if (nextBtn) {
+        nextBtn.click();
+      }
+    }
+  }
+);
+
+
+// ============================================================
+// DESCARREGAR FITXER
+// ============================================================
+
+function descarregarFitxer(file) {
+  if (!file || !file.url) {
+    return;
+  }
+
+  const link = document.createElement('a');
+
+  link.href = file.url;
+  link.target = '_blank';
+  link.rel = 'noopener';
+  link.download = file.name || '';
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  link.remove();
+}
+
+
+// ============================================================
+// POPUP D'INSTRUCCIONS
+// ============================================================
+
+const downloadInstructions =
+  document.getElementById('downloadInstructions');
+
+const closeDownloadInstructions =
+  document.getElementById('closeDownloadInstructions');
+
+
+if (closeDownloadInstructions) {
+  closeDownloadInstructions.addEventListener(
+    'click',
+    function () {
+      if (downloadInstructions) {
+        downloadInstructions.style.display = 'none';
+      }
+    }
+  );
+}
+
+
+if (downloadInstructions) {
+  downloadInstructions.addEventListener(
+    'click',
+    function (event) {
+      if (event.target === downloadInstructions) {
+        downloadInstructions.style.display = 'none';
+      }
+    }
+  );
+}
+
+
+// ============================================================
+// PESTANYES
+// ============================================================
+
+const tabButtons =
+  document.querySelectorAll('.tab-btn');
+
+const tabContents =
+  document.querySelectorAll('.tab-content');
+
+
+tabButtons.forEach(function (button) {
+  button.addEventListener(
+    'click',
+    function () {
+      const targetId =
+        button.getAttribute('data-tab');
+
+      tabButtons.forEach(function (btn) {
+        btn.classList.remove('active');
+      });
+
+      tabContents.forEach(function (content) {
+        content.classList.remove('active');
+      });
+
+      button.classList.add('active');
+
+      const target =
+        document.getElementById(targetId);
+
+      if (target) {
+        target.classList.add('active');
+      }
+
+      if (targetId === 'galleryTab') {
+        carregarGaleria();
+      }
+    }
+  );
+});
+
+
+// ============================================================
+// REFRESC AUTOMÀTIC
+// ============================================================
+
+setInterval(
+  function () {
+    const galleryTab =
+      document.getElementById('galleryTab');
+
+    if (
+      galleryTab &&
+      galleryTab.classList.contains('active')
+    ) {
       carregarGaleria();
     }
+  },
+  10000
+);
 
-  });
 
-});
+// ============================================================
+// INICI
+// ============================================================
 
-const refreshGalleryBtn =
-  document.getElementById('refreshGalleryBtn');
+mostrarPendents();
 
-if (refreshGalleryBtn) {
-  refreshGalleryBtn.addEventListener('click', () => {
-    carregarGaleria();
-  });
-}
+console.log('J&G: app.js carregat correctament.');
