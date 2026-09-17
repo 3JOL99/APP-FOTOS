@@ -453,12 +453,9 @@ function mostrarGaleria() {
 // ============================================================
 
 if (refreshGalleryBtn) {
-  refreshGalleryBtn.addEventListener(
-    'click',
-    function () {
-      carregarGaleria();
-    }
-  );
+  refreshGalleryBtn.addEventListener('click', function () {
+    carregarGaleria();
+  });
 }
 
 
@@ -797,26 +794,6 @@ tabButtons.forEach(function (button) {
     }
   );
 });
-
-
-// ============================================================
-// REFRESC AUTOMÀTIC
-// ============================================================
-
-setInterval(
-  function () {
-    const galleryTab =
-      document.getElementById('galleryTab');
-
-    if (
-      galleryTab &&
-      galleryTab.classList.contains('active')
-    ) {
-      carregarGaleria();
-    }
-  },
-  10000
-);
 
 
 // ============================================================
