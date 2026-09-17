@@ -514,11 +514,20 @@ function obrirModal(index) {
 // MOSTRAR FITXER AL MODAL
 // ============================================================
 
-function mostrarFitxerModal() {
-  if (allFiles.length === 0) {
+// ============================================================
+// MOSTRAR FITXER AL MODAL
+// ============================================================
+
+function showModalItem(index) {
+  if (!imageModal) {
     return;
   }
 
+  if (allFiles.length === 0 || index < 0 || index >= allFiles.length) {
+    return;
+  }
+
+  currentIndex = index;
   const file = allFiles[currentIndex];
 
   if (modalContent) {
@@ -529,44 +538,25 @@ function mostrarFitxerModal() {
   if (modalVideoContent) {
     modalVideoContent.innerHTML = '';
     modalVideoContent.style.display = 'none';
+    modalVideoContent.pause();
   }
 
-  if (
-    file.type &&
-    file.type.startsWith('image/')
-  ) {
+  if (file.type && file.type.startsWith('image/')) {
     if (modalContent) {
-      const img = document.createElement('img');
-
-      img.src = file.url;
-      img.alt = file.name || 'Foto';
-
-      modalContent.appendChild(img);
+      modalContent.src = file.url;
+      modalContent.alt = '';
       modalContent.style.display = 'block';
     }
-
-  } else if (
-    file.type &&
-    file.type.startsWith('video/')
-  ) {
+  } else if (file.type && file.type.startsWith('video/')) {
     if (modalVideoContent) {
-      const video = document.createElement('video');
-
-      video.src = file.url;
-      video.controls = true;
-      video.autoplay = true;
-      video.playsInline = true;
-
-      modalVideoContent.appendChild(video);
+      modalVideoContent.src = file.url;
+      modalVideoContent.controls = true;
       modalVideoContent.style.display = 'block';
     }
   }
 
-  if (downloadBtn) {
-    downloadBtn.onclick = function () {
-      descarregarFitxer(file);
-    };
-  }
+  // Aquesta és la línia clau perquè s'obri el modal a pantalla completa i no es quedi transparent
+  imageModal.style.display = 'flex';
 }
 
 
