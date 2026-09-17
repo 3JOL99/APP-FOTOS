@@ -95,16 +95,29 @@
     </div>
   </section>
 
-  <!-- MODAL DE PANTALLA COMPLETA -->
+  <!-- Modal de pantalla completa -->
   <div id="imageModal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.95); justify-content:center; align-items:center; flex-direction:column;">
+    
+    <!-- Botó de tancar -->
     <span id="closeModal" style="position:absolute; top:20px; right:25px; color:white; font-size:2.5rem; font-weight:bold; cursor:pointer; z-index: 1001;">&times;</span>
-    <a id="downloadBtn" href="#" download target="_blank" style="position:absolute; top:25px; left:20px; color:white; background:rgba(255,255,255,0.2); padding:8px 14px; border-radius:20px; text-decoration:none; font-size:0.9rem; z-index: 1001;">Descarregar 📥</a>
+    
+    <!-- Botó de descarregar -->
+    <button id="downloadBtn" style="position:absolute; top:25px; left:20px; color:white; background:rgba(255,255,255,0.2); border:none; padding:8px 14px; border-radius:20px; font-size:0.9rem; cursor:pointer; z-index: 1001;">Descarregar 📥</button>
 
-    <img id="modalContent" src="" alt="Vista ampliada" style="display:none; max-width:90%; max-height:80vh; border-radius:8px; object-fit:contain;" />
-    <div id="modalVideoContent" style="display:none; max-width:90%; max-height:80vh;"></div>
+    <!-- Quadre d'instruccions de descàrrega (amagat per defecte) -->
+    <div id="downloadInstructions" style="display:none; position:absolute; top:70px; left:20px; background:rgba(0,0,0,0.85); color:white; padding:12px 16px; border-radius:10px; font-size:0.85rem; z-index:1002; max-width:250px; text-align:left; border: 1px solid rgba(255,255,255,0.3);">
+      <b>Com desar la foto:</b><br>
+      Mantén el dit premut damunt de la imatge un parell de segons fins que aparegui el menú del mòbil i tria <b>"Desar a Fotos"</b>.
+    </div>
 
-    <button id="prevBtn" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10094;</button>
-    <button id="nextBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10095;</button>
+    <!-- Contingut de la imatge o vídeo -->
+    <img id="modalContent" src="" alt="Foto de la galeria" style="display:none; max-width:90%; max-height:80vh; border-radius:8px; object-fit:contain;" />
+    <video id="modalVideoContent" src="" controls style="display:none; max-width:90%; max-height:80vh; border-radius:8px;"></video>
+
+    <!-- Fletxes de navegació -->
+    <button id="prevBtn" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">❮</button>
+    <button id="nextBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">❯</button>
+  
   </div>
 
   <!-- SCRIPT PRINCIPAL -->
