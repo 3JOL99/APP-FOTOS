@@ -3,242 +3,112 @@
 
 <head>
   <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>J&G</title>
 
   <link rel="manifest" href="manifest.json">
 
-  <meta
-    name="apple-mobile-web-app-capable"
-    content="yes"
-  >
-
-  <meta
-    name="apple-mobile-web-app-status-bar-style"
-    content="default"
-  >
-
-  <meta
-    name="apple-mobile-web-app-title"
-    content="J&G"
-  >
-
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="J&G">
   <link rel="apple-touch-icon" href="icon.png">
 
   <link rel="stylesheet" href="style.css">
 </head>
 
-
 <body>
 
-  <!-- ================================================= -->
-  <!-- CAPÇALERA                                         -->
-  <!-- ================================================= -->
-
+  <!-- CAPÇALERA -->
   <h1>💍 J&G 📸</h1>
 
-
-  <!-- ================================================= -->
-  <!-- INSTAL·LACIÓ DE L'APP                             -->
-  <!-- ================================================= -->
-
-  <button
-    id="smartInstallBtn"
-    class="main-btn"
-    style="display:none; background-color:#5856D6;"
-  >
+  <!-- INSTAL·LACIÓ DE L'APP -->
+  <button id="smartInstallBtn" class="main-btn" style="display:none; background-color:#5856D6;">
     Instal·la l'APP al mòbil
   </button>
 
-
   <!-- Instruccions iOS -->
-
-  <div
-    id="iosInstructions"
-    style="display:none;"
-  >
-
-    <h3>
-      Com instal·lar l'App al teu iPhone
-    </h3>
-
+  <div id="iosInstructions" style="display:none;">
+    <h3>Com instal·lar l'App al teu iPhone</h3>
     <ol>
-
-      <div>
-        Assegura't d'obrir aquest enllaç des del navegador
-        <b>Safari</b>.
-      </div>
-
+      <div>Assegura't d'obrir aquest enllaç des del navegador <b>Safari</b>.</div>
       <li>
-
         Clica el botó de <b>Compartir</b>
-
-        <svg
-          width="18"
-          height="18"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#007AFF"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          style="
-            vertical-align:middle;
-            display:inline-block;
-          "
-        >
-
-          <path
-            d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"
-          ></path>
-
-          <polyline
-            points="16 6 12 2 8 6"
-          ></polyline>
-
-          <line
-            x1="12"
-            y1="2"
-            x2="12"
-            y2="15"
-          ></line>
-
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; display:inline-block;">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+          <polyline points="16 6 12 2 8 6"></polyline>
+          <line x1="12" y1="2" x2="12" y2="15"></line>
         </svg>
-
         (situat a la barra inferior de Safari).
-
       </li>
-
-      <li>
-        Desplaça't pel menú i busca l'opció
-        <b>"Afegir a la pantalla d'inici"</b>
-        <span style="font-size:1.2rem;">➕</span>.
-      </li>
-
-      <li>
-        Clica a <b>Afegir</b> a la dreta de tot.
-        ¡Llest! Ja la tens a la pantalla.
-      </li>
-
+      <li>Desplaça't pel menú i busca l'opció <b>"Afegir a la pantalla d'inici"</b> <span style="font-size:1.2rem;">➕</span>.</li>
+      <li>Clica a <b>Afegir</b> a la dreta de tot. ¡Llest! Ja la tens a la pantalla.</li>
     </ol>
-
   </div>
 
+  <!-- INPUTS OCULTS DE CÀMERA I GALERIA -->
+  <input type="file" accept="image/*,video/*" capture="environment" id="cameraInput" style="display:none;">
+  <input type="file" accept="image/*,video/*" multiple id="galleryInput" style="display:none;">
 
-  <!-- ================================================= -->
-  <!-- INPUTS OCULTS DE CÀMERA I GALERIA                -->
-  <!-- ================================================= -->
+  <!-- MISSATGES D'ESTAT -->
+  <p id="status"></p>
 
-  <input
-    type="file"
-    accept="image/*,video/*"
-    capture="environment"
-    id="cameraInput"
-    style="display:none;"
-  >
-
-
-  <input
-    type="file"
-    accept="image/*,video/*"
-    multiple
-    id="galleryInput"
-    style="display:none;"
-  >
-
-
-  <!-- ================================================= -->
-  <!-- MENÚ DE PESTANYES                                 -->
-  <!-- ================================================= -->
-
+  <!-- MENÚ DE PESTANYES -->
   <div class="tabs">
-
-    <button
-      type="button"
-      class="tab-btn active"
-      data-tab="photosTab"
-    >
-      📸 Fotos
-    </button>
-
-
-    <button
-      type="button"
-      class="tab-btn"
-      data-tab="galleryTab"
-    >
-      ☁️ Galeria
-    </button>
-
+    <button type="button" class="tab-btn active" data-tab="photosTab">📸 Fotos</button>
+    <button type="button" class="tab-btn" data-tab="galleryTab">☁️ Galeria</button>
   </div>
 
-
-  <!-- ================================================= -->
-  <!-- PESTANYA 1 - FOTOS                               -->
-  <!-- ================================================= -->
-
-  <section
-    id="photosTab"
-    class="tab-content active"
-  >
-
-    <h2>
-      📸 Afegir fotos
-    </h2>
-
+  <!-- PESTANYA 1 - FOTOS -->
+  <section id="photosTab" class="tab-content active">
+    <h2>📸 Afegir fotos</h2>
 
     <!-- Fer foto -->
-
-    <button
-      type="button"
-      id="startCamBtn"
-      class="main-btn"
-    >
+    <button type="button" id="startCamBtn" class="main-btn">
       Fes una foto o vídeo 📷
     </button>
 
-
     <!-- Seleccionar de galeria -->
-
-    <button
-      type="button"
-      id="startGalleryBtn"
-      class="main-btn gallery-btn"
-    >
+    <button type="button" id="startGalleryBtn" class="main-btn gallery-btn">
       Selecciona de la galeria 🖼️
     </button>
 
-
-    <!-- ================================================= -->
-    <!-- CISTELLA DE FITXERS                               -->
-    <!-- ================================================= -->
-
+    <!-- CISTELLA DE FITXERS -->
     <div id="pendingContainer">
-
-      <h3
-        style="
-          margin:0 0 10px 0;
-          font-size:1.1rem;
-          color:#007AFF;
-        "
-      >
-        Llestos per pujar
-        (<span id="pendingCount">0</span>)
+      <h3 style="margin:0 0 10px 0; font-size:1.1rem; color:#007AFF;">
+        Llestos per pujar (<span id="pendingCount">0</span>)
       </h3>
-
-
       <div id="pendingPreview"></div>
-
-
-      <button
-        type="button"
-        id="uploadAllBtn"
-        class="main-btn upload-all-btn"
-      >
+      <button type="button" id="uploadAllBtn" class="main-btn upload-all-btn">
         Pujar-ho tot a la galeria 🚀
-```
+      </button>
+    </div>
+  </section>
+
+  <!-- PESTANYA 2 - GALERIA -->
+  <section id="galleryTab" class="tab-content">
+    <div class="gallery-header">
+      <h2>Galeria en Directe</h2>
+      <button type="button" id="refreshGalleryBtn" class="refresh-btn">🔄 Actualitzar</button>
+    </div>
+    <div class="gallery" id="galleryContainer">
+      <p>Carregant records...</p>
+    </div>
+  </section>
+
+  <!-- MODAL DE PANTALLA COMPLETA -->
+  <div id="imageModal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.95); justify-content:center; align-items:center; flex-direction:column;">
+    <span id="closeModal" style="position:absolute; top:20px; right:25px; color:white; font-size:2.5rem; font-weight:bold; cursor:pointer; z-index: 1001;">&times;</span>
+    <a id="downloadBtn" href="#" download target="_blank" style="position:absolute; top:25px; left:20px; color:white; background:rgba(255,255,255,0.2); padding:8px 14px; border-radius:20px; text-decoration:none; font-size:0.9rem; z-index: 1001;">Descarregar 📥</a>
+
+    <div id="modalContent" style="display:none; max-width:90%; max-height:80vh;"></div>
+    <div id="modalVideoContent" style="display:none; max-width:90%; max-height:80vh;"></div>
+
+    <button id="prevBtn" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10094;</button>
+    <button id="nextBtn" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.2); color:white; border:none; font-size:2rem; padding:10px 15px; cursor:pointer; border-radius:50%;">&#10095;</button>
+  </div>
+
+  <!-- SCRIPT PRINCIPAL -->
+  <script src="app.js"></script>
+</body>
+
+</html>
