@@ -828,4 +828,3 @@ mostrarPendents();
 console.log(
   'J&G: app.js carregat correctament.'
 );
-```
