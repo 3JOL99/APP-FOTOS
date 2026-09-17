@@ -486,58 +486,24 @@ const nextBtn =
 
 
 // ============================================================
-// OBRIR MODAL
-// ============================================================
-
-function obrirModal(index) {
-  if (!imageModal) {
-    return;
-  }
-
-  if (
-    allFiles.length === 0 ||
-    index < 0 ||
-    index >= allFiles.length
-  ) {
-    return;
-  }
-
-  currentIndex = index;
-
-  mostrarFitxerModal();
-
-  imageModal.style.display = 'flex';
-}
-
-
-// ============================================================
 // MOSTRAR FITXER AL MODAL
 // ============================================================
 
-// ============================================================
-// MOSTRAR FITXER AL MODAL
-// ============================================================
+function mostrarFitxerModal() {
+  if (!imageModal || allFiles.length === 0) return;
+  
+  if (currentIndex < 0) currentIndex = allFiles.length - 1;
+  if (currentIndex >= allFiles.length) currentIndex = 0;
 
-function showModalItem(index) {
-  if (!imageModal) {
-    return;
-  }
-
-  if (allFiles.length === 0 || index < 0 || index >= allFiles.length) {
-    return;
-  }
-
-  currentIndex = index;
   const file = allFiles[currentIndex];
 
   if (modalContent) {
-    modalContent.innerHTML = '';
     modalContent.style.display = 'none';
+    modalContent.src = '';
   }
-
   if (modalVideoContent) {
-    modalVideoContent.innerHTML = '';
     modalVideoContent.style.display = 'none';
+    modalVideoContent.src = '';
     modalVideoContent.pause();
   }
 
@@ -555,7 +521,28 @@ function showModalItem(index) {
     }
   }
 
-  // Aquesta és la línia clau perquè s'obri el modal a pantalla completa i no es quedi transparent
+  // Actualitzar l'enllaç del botó de descàrrega
+  if (downloadBtn) {
+    downloadBtn.href = file.url;
+    downloadBtn.download = file.name || 'fitxer';
+  }
+}
+
+// ============================================================
+// OBRIR MODAL
+// ============================================================
+
+function obrirModal(index) {
+  if (!imageModal) {
+    return;
+  }
+
+  if (allFiles.length === 0 || index < 0 || index >= allFiles.length) {
+    return;
+  }
+
+  currentIndex = index;
+  mostrarFitxerModal();
   imageModal.style.display = 'flex';
 }
 
