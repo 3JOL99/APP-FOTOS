@@ -48,7 +48,7 @@ function setStatus(message) {
 
 
 // ============================================================
-// CÀMERA
+// BOTÓ CÀMERA
 // ============================================================
 
 if (startCamBtn && cameraInput) {
@@ -61,7 +61,7 @@ if (startCamBtn && cameraInput) {
 
 
 // ============================================================
-// GALERIA DEL MÒBIL
+// BOTÓ GALERIA
 // ============================================================
 
 if (startGalleryBtn && galleryInput) {
@@ -74,7 +74,7 @@ if (startGalleryBtn && galleryInput) {
 
 
 // ============================================================
-// FITXERS DE LA CÀMERA
+// CÀMERA: FITXERS SELECCIONATS
 // ============================================================
 
 if (cameraInput) {
@@ -91,7 +91,7 @@ if (cameraInput) {
 
 
 // ============================================================
-// FITXERS DE LA GALERIA
+// GALERIA: FITXERS SELECCIONATS
 // ============================================================
 
 if (galleryInput) {
@@ -108,7 +108,7 @@ if (galleryInput) {
 
 
 // ============================================================
-// AFEGIR FITXERS
+// AFEGIR FITXERS A LA CUA
 // ============================================================
 
 function afegirFitxers(files) {
@@ -126,7 +126,7 @@ function afegirFitxers(files) {
 
 
 // ============================================================
-// MOSTRAR FITXERS PENDENTS
+// MOSTRAR PENDENTS
 // ============================================================
 
 function mostrarPendents() {
@@ -182,7 +182,7 @@ function mostrarPendents() {
 
 
 // ============================================================
-// PUJAR TOTS
+// BOTÓ PUJAR TOTS
 // ============================================================
 
 if (uploadAllBtn) {
@@ -237,20 +237,13 @@ async function pujarFitxers() {
         .padStart(4, '0');
 
       const nomPersonalitzat =
-        any +
-        '-' +
-        mes +
-        '-' +
-        dia +
-        '_' +
-        hores +
-        '-' +
-        minuts +
-        '-' +
-        segons +
-        '_' +
-        random +
-        '.' +
+        any + '-' +
+        mes + '-' +
+        dia + '_' +
+        hores + '-' +
+        minuts + '-' +
+        segons + '_' +
+        random + '.' +
         extensio;
 
       const resposta = await fetch(SCRIPT_URL, {
@@ -280,7 +273,7 @@ async function pujarFitxers() {
       'Tots els fitxers s’han pujat correctament.'
     );
 
-    await carregarGaleria();
+    carregarGaleria();
 
   } catch (error) {
     console.error('Error pujant fitxers:', error);
@@ -296,7 +289,7 @@ async function pujarFitxers() {
 
 
 // ============================================================
-// FILE -> BASE64
+// CONVERTIR A BASE64
 // ============================================================
 
 function convertirABase64(file) {
@@ -322,7 +315,7 @@ function convertirABase64(file) {
 
 
 // ============================================================
-// EXTENSIÓ
+// OBTENIR EXTENSIÓ
 // ============================================================
 
 function obtenirExtensio(nom) {
@@ -350,9 +343,7 @@ async function carregarGaleria() {
 
   try {
     const resposta = await fetch(
-      SCRIPT_URL +
-      '?action=getFiles&t=' +
-      Date.now()
+      SCRIPT_URL + '?action=getFiles&t=' + Date.now()
     );
 
     if (!resposta.ok) {
@@ -464,14 +455,8 @@ function mostrarGaleria() {
 if (refreshGalleryBtn) {
   refreshGalleryBtn.addEventListener(
     'click',
-    async function () {
-      refreshGalleryBtn.disabled = true;
-
-      try {
-        await carregarGaleria();
-      } finally {
-        refreshGalleryBtn.disabled = false;
-      }
+    function () {
+      carregarGaleria();
     }
   );
 }
@@ -560,7 +545,6 @@ function mostrarFitxerModal() {
       img.alt = file.name || 'Foto';
 
       modalContent.appendChild(img);
-
       modalContent.style.display = 'block';
     }
 
@@ -577,7 +561,6 @@ function mostrarFitxerModal() {
       video.playsInline = true;
 
       modalVideoContent.appendChild(video);
-
       modalVideoContent.style.display = 'block';
     }
   }
@@ -715,7 +698,7 @@ document.addEventListener(
 
 
 // ============================================================
-// DESCARREGAR FITXER
+// DESCARREGAR
 // ============================================================
 
 function descarregarFitxer(file) {
@@ -842,4 +825,7 @@ setInterval(
 
 mostrarPendents();
 
-console.log('J&G: app.js carregat correctament.');
+console.log(
+  'J&G: app.js carregat correctament.'
+);
+```
